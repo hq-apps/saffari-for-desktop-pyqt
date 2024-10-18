@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 import sys
 from PyQt5.QtCore import QUrl
-from PyQt5.QtWidgets import QMainWindow, QTabWidget, QToolBar, QAction, QLineEdit, QApplication, QWidget, QVBoxLayout
+from PyQt5.QtWidgets import QMainWindow, QTabWidget, QToolBar, QAction, QLineEdit, QApplication, QWidget, QVBoxLayout, QMenu, QToolButton
 from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEngineDownloadItem
-from download_manager import DownloadManager
+from download_manager import DownloadManager # Requires download_manager.py to be in the same folder!
+from about import AboutDialog  # Import the AboutDialog class
 
 class BrowserTab(QWidget):
     def __init__(self, browser):
@@ -27,7 +28,7 @@ class BrowserTab(QWidget):
         self.browser.url_bar.setText(q.toString())
 
     def start_download(self, download: QWebEngineDownloadItem):
-        self.browser.download_manager.start_download(download)
+        self.browser.download_manager.start_download(download) # See download_manager.py
 
     def update_tab_title(self):
         title = self.browser_view.page().title()
@@ -72,17 +73,33 @@ class Browser(QMainWindow):
         new_tab_button.triggered.connect(self.add_new_tab)
         self.navbar.addAction(new_tab_button)
 
-        downloads_button = QAction("Downloads", self)
-        downloads_button.triggered.connect(self.show_downloads)
-        self.navbar.addAction(downloads_button)
-
         self.download_manager = DownloadManager()
+
+        self.add_hamburger_menu()
 
         self.add_new_tab()
 
+    def add_hamburger_menu(self):
+        hamburger_menu = QMenu(self)
+        downloads_action = QAction("downlod manager", self)  # Add Downloads action to the menu
+        settings_action = QAction("Setting...", self)
+        about_action = QAction("about saffari for decstop", self)
+        downloads_action.triggered.connect(self.show_downloads)
+        about_action.triggered.connect(self.show_about_dialog)  # Connect the About action
+        hamburger_menu.addAction(downloads_action)  # Add Downloads action to the menu
+        hamburger_menu.addAction(settings_action)
+        hamburger_menu.addAction(about_action)
+
+        hamburger_button = QToolButton(self)
+        hamburger_button.setText("☰")
+        hamburger_button.setMenu(hamburger_menu)
+        hamburger_button.setPopupMode(QToolButton.InstantPopup)  # Show menu on button click
+        hamburger_button.clicked.connect(lambda: hamburger_menu.exec_(hamburger_button.mapToGlobal(hamburger_button.rect().bottomLeft())))
+        self.navbar.addWidget(hamburger_button)
+
     def add_new_tab(self):
         new_tab = BrowserTab(self)
-        new_tab.navigate_to_url("https://www.google.com")
+        new_tab.navigate_to_url("https://saffaristart.pages.dev")
         self.tabs.addTab(new_tab, "New Tab")
         self.tabs.setCurrentWidget(new_tab)
 
@@ -109,6 +126,10 @@ class Browser(QMainWindow):
 
     def show_downloads(self):
         self.download_manager.show()
+
+    def show_about_dialog(self):
+        about_dialog = AboutDialog()
+        about_dialog.exec_()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
