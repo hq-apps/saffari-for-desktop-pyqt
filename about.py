@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import sys
-from PyQt5.QtWidgets import QApplication, QDialog, QVBoxLayout, QLabel, QPushButton
+from PyQt6.QtWidgets import QApplication, QDialog, QVBoxLayout, QLabel, QPushButton
 
 class AboutDialog(QDialog):
     def __init__(self):
@@ -10,7 +10,7 @@ class AboutDialog(QDialog):
 
         layout = QVBoxLayout()
 
-        about_label = QLabel("Saffari For decstop\nVersion [alpha]\n\n")
+        about_label = QLabel("Saffari For desktop\nVersion [alpha]\n\n")
         layout.addWidget(about_label)
 
         close_button = QPushButton("Close")
@@ -22,4 +22,4 @@ class AboutDialog(QDialog):
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     dialog = AboutDialog()
-    dialog.exec_()
+    dialog.exec()

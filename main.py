@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 import sys
-from PyQt5.QtCore import QUrl
-from PyQt5.QtWidgets import QMainWindow, QTabWidget, QToolBar, QAction, QLineEdit, QApplication, QWidget, QVBoxLayout, QMenu, QToolButton
-from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEngineDownloadItem
-from download_manager import DownloadManager # Requires download_manager.py to be in the same folder!
+from PyQt6.QtCore import QUrl
+from PyQt6.QtWidgets import QMainWindow, QTabWidget, QToolBar, QLineEdit, QApplication, QWidget, QVBoxLayout, QMenu, QToolButton
+from PyQt6.QtGui import QAction
+from PyQt6.QtWebEngineWidgets import QWebEngineView
+from PyQt6.QtWebEngineCore import QWebEngineDownloadRequest
+from download_manager import DownloadManager  # Requires download_manager.py to be in the same folder!
 from about import AboutDialog  # Import the AboutDialog class
 
 class BrowserTab(QWidget):
@@ -27,8 +29,8 @@ class BrowserTab(QWidget):
     def update_url_bar(self, q):
         self.browser.url_bar.setText(q.toString())
 
-    def start_download(self, download: QWebEngineDownloadItem):
-        self.browser.download_manager.start_download(download) # See download_manager.py
+    def start_download(self, download: QWebEngineDownloadRequest):
+        self.browser.download_manager.start_download(download)  # See download_manager.py
 
     def update_tab_title(self):
         title = self.browser_view.page().title()
@@ -41,7 +43,7 @@ class BrowserTab(QWidget):
 class Browser(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Saffari For decstop")
+        self.setWindowTitle("Saffari For Desktop")
         self.resize(1200, 800)
 
         self.tabs = QTabWidget()
@@ -81,9 +83,9 @@ class Browser(QMainWindow):
 
     def add_hamburger_menu(self):
         hamburger_menu = QMenu(self)
-        downloads_action = QAction("downlod manager", self)  # Add Downloads action to the menu
-        settings_action = QAction("Setting...", self)
-        about_action = QAction("about saffari for decstop", self)
+        downloads_action = QAction("Download Manager", self)  # Add Downloads action to the menu
+        settings_action = QAction("Settings...", self)
+        about_action = QAction("About Saffari For Desktop", self)
         downloads_action.triggered.connect(self.show_downloads)
         about_action.triggered.connect(self.show_about_dialog)  # Connect the About action
         hamburger_menu.addAction(downloads_action)  # Add Downloads action to the menu
@@ -93,8 +95,8 @@ class Browser(QMainWindow):
         hamburger_button = QToolButton(self)
         hamburger_button.setText("☰")
         hamburger_button.setMenu(hamburger_menu)
-        hamburger_button.setPopupMode(QToolButton.InstantPopup)  # Show menu on button click
-        hamburger_button.clicked.connect(lambda: hamburger_menu.exec_(hamburger_button.mapToGlobal(hamburger_button.rect().bottomLeft())))
+        hamburger_button.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)  # Show menu on button click
+        hamburger_button.clicked.connect(lambda: hamburger_menu.exec(hamburger_button.mapToGlobal(hamburger_button.rect().bottomLeft())))
         self.navbar.addWidget(hamburger_button)
 
     def add_new_tab(self):
@@ -129,10 +131,10 @@ class Browser(QMainWindow):
 
     def show_about_dialog(self):
         about_dialog = AboutDialog()
-        about_dialog.exec_()
+        about_dialog.exec()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     window = Browser()
     window.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
