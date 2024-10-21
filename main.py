@@ -1,15 +1,17 @@
 #!/usr/bin/env python3
 import sys
-from PyQt6.QtCore import QUrl
+from PyQt6.QtCore import QUrl, pyqtSlot, QObject
 from PyQt6.QtWidgets import QMainWindow, QTabWidget, QToolBar, QLineEdit, QApplication, QWidget, QVBoxLayout, QMenu, QToolButton
 from PyQt6.QtGui import QAction
 from PyQt6.QtWebEngineWidgets import QWebEngineView
 from PyQt6.QtWebEngineCore import QWebEngineDownloadRequest
-from download_manager import DownloadManager  # Requires download_manager.py to be in the same folder!
-from about import AboutDialog  # Import the AboutDialog class
+from PyQt6.QtQml import QQmlApplicationEngine
+from download_manager import DownloadManager
+from about import AboutDialog
+from settings import SettingsManager
 
 class BrowserTab(QWidget):
-    def __init__(self, browser):
+    def __init__(self, browser, homepage):
         super().__init__()
         self.browser = browser
         self.layout = QVBoxLayout()
@@ -21,6 +23,8 @@ class BrowserTab(QWidget):
         self.browser_view.page().profile().downloadRequested.connect(self.start_download)
         self.browser_view.loadFinished.connect(self.update_tab_title)
 
+        self.navigate_to_url(homepage)
+
     def navigate_to_url(self, url):
         if not (url.startswith("http://") or url.startswith("https://")):
             url = "https://" + url
@@ -30,7 +34,7 @@ class BrowserTab(QWidget):
         self.browser.url_bar.setText(q.toString())
 
     def start_download(self, download: QWebEngineDownloadRequest):
-        self.browser.download_manager.start_download(download)  # See download_manager.py
+        self.browser.download_manager.start_download(download)
 
     def update_tab_title(self):
         title = self.browser_view.page().title()
@@ -83,25 +87,30 @@ class Browser(QMainWindow):
 
     def add_hamburger_menu(self):
         hamburger_menu = QMenu(self)
-        downloads_action = QAction("Download Manager", self)  # Add Downloads action to the menu
+        downloads_action = QAction("Download Manager", self)
         settings_action = QAction("Settings...", self)
         about_action = QAction("About Saffari For Desktop", self)
+        
         downloads_action.triggered.connect(self.show_downloads)
-        about_action.triggered.connect(self.show_about_dialog)  # Connect the About action
-        hamburger_menu.addAction(downloads_action)  # Add Downloads action to the menu
+        settings_action.triggered.connect(self.show_settings)
+        about_action.triggered.connect(self.show_about_dialog)
+        
+        hamburger_menu.addAction(downloads_action)
         hamburger_menu.addAction(settings_action)
         hamburger_menu.addAction(about_action)
 
         hamburger_button = QToolButton(self)
         hamburger_button.setText("☰")
         hamburger_button.setMenu(hamburger_menu)
-        hamburger_button.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)  # Show menu on button click
+        hamburger_button.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
         hamburger_button.clicked.connect(lambda: hamburger_menu.exec(hamburger_button.mapToGlobal(hamburger_button.rect().bottomLeft())))
         self.navbar.addWidget(hamburger_button)
 
     def add_new_tab(self):
-        new_tab = BrowserTab(self)
-        new_tab.navigate_to_url("https://saffaristart.pages.dev")
+        homepage = settings_manager.load_homepage()
+        if not homepage:
+            homepage = "https://saffaristart.pages.dev"
+        new_tab = BrowserTab(self, homepage)
         self.tabs.addTab(new_tab, "New Tab")
         self.tabs.setCurrentWidget(new_tab)
 
@@ -129,12 +138,18 @@ class Browser(QMainWindow):
     def show_downloads(self):
         self.download_manager.show()
 
+    def show_settings(self):
+        self.settings_engine = QQmlApplicationEngine()
+        self.settings_engine.rootContext().setContextProperty("settingsManager", settings_manager)
+        self.settings_engine.load(QUrl.fromLocalFile('settings.qml'))
+
     def show_about_dialog(self):
         about_dialog = AboutDialog()
         about_dialog.exec()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
+    settings_manager = SettingsManager()
     window = Browser()
     window.show()
     sys.exit(app.exec())
