@@ -12,7 +12,7 @@ echo.
 pip3 install -r requirements.txt
 echo.
 echo If there were no errors everything should be set up now.
-echo Open "run.bat" to start Saffari.
+echo Open run.bat to start Saffari.
 echo Press any key to exit...
 pause > nul
 exit
