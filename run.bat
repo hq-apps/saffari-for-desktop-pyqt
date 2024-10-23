@@ -4,6 +4,4 @@ echo Everything you see below is either a Python Error (please include it if you
 echo.
 python3 main.py
 echo.
-echo Saffari just exited. Either because you closed it or because it crashed.
-echo Press any key to exit...
-pause > nul
+echo Exiting

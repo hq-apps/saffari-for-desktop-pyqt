@@ -47,3 +47,8 @@ class SettingsManager(QObject):
     @pyqtSlot(str)
     def save_search_engine(self, search_engine):
         self.save_setting("search_engine.txt", search_engine)
+
+    @pyqtSlot()
+    def trigger_crash(self):
+        # This method will raise an intentional error to simulate a crash
+        raise Exception("DO NOT REPORT THIS CRASH! it's an intentionally caused test crash.")

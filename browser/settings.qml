@@ -107,5 +107,34 @@ ApplicationWindow {
                 Qt.quit()
             }
         }
+
+        // Show Dev Options button
+        Button {
+            text: "Show Dev Options"
+            onClicked: {
+                devOptions.visible = true
+            }
+        }
+
+        // Dev Options section
+        Column {
+            id: devOptions
+            visible: false
+            spacing: 10
+
+            Label {
+                text: "Dev Options"
+            }
+
+            Button {
+                text: "Crash Browser"
+                background: Rectangle {
+                    color: "red"
+                }
+                onClicked: {
+                    settingsManager.trigger_crash()
+                }
+            }
+        }
     }
 }
