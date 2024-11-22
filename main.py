@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import subprocess
 import sys
 import webbrowser
@@ -16,7 +17,7 @@ pyqt6_window_title = "SAFFARI crash reporter!! were so sorry!! :(( (PyQt6 mode)"
 
 def run_script():
     try:
-        result = subprocess.run([sys.executable, 'browser.py'], cwd='browser', capture_output=True, text=True)
+        result = subprocess.run([sys.executable, 'updater.py'], cwd='browser', capture_output=True, text=True)
         if result.returncode != 0:
             show_logs(result.stdout, result.stderr)
     except Exception as e:
