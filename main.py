@@ -38,7 +38,7 @@ def show_logs(stdout, stderr):
             def __init__(self, stdout, stderr):
                 super().__init__()
                 self.title(tkinter_window_title)
-                self.geometry("800x650")
+                self.geometry("800x800")
 
                 error_label = tk.Label(self, text=error_message, justify=tk.LEFT)
                 error_label.pack(pady=10)
